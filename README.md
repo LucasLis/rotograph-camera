@@ -10,5 +10,5 @@ poetry install
 ## Running
 
 ```sh
-poetry run python main.py
+poetry run python camera.py
 ```
