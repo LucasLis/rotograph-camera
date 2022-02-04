@@ -8,7 +8,8 @@ from typing import Tuple
 
 class VideoManager(pyglet.event.EventDispatcher):
     TARGET_SIZE = TARGET_WIDTH, TARGET_HEIGHT = (640, 360)
-    FPS = 30
+    MAX_FPS = 24
+    FPS = 5
 
     image: pyglet.image.ImageData
 
@@ -35,6 +36,7 @@ class VideoManager(pyglet.event.EventDispatcher):
 
     def start_recording(self, time: int):
         self.recording = True
+        self.frames = []
         self.frame_count = time * self.FPS
 
     def get_size(self, frame: np.ndarray) -> Tuple[int, int]:
@@ -59,12 +61,12 @@ class VideoManager(pyglet.event.EventDispatcher):
     def read_frame(self) -> None | np.ndarray:
         if not self.vc.isOpened():
             print("Failed to read frame, video capture is not open.")
-            return None
+            return
 
         rval, frame = self.vc.read()
         if not rval:
             print("Failed to read frame, rval was False.")
-            return None
+            return
 
         return frame[::-1, :, ::-1]  # Flip y axis and flip colours, BGR -> RGB
 
@@ -80,19 +82,23 @@ class VideoManager(pyglet.event.EventDispatcher):
                     self.frame_count -= 1
                 else:
                     if self.FPS == 0:
-                        self.crop_frame(frame).save("frame.jpg")
-                    else:
-                        self.frames[0].save(
-                            "frames.gif",
-                            save_all=True,
-                            append_images=self.frames[1:],
-                            optimize=False,
-                            duration=1000/self.FPS,
-                        )
+                        self.frames.append(self.crop_frame(frame))
 
-                    self.frames = []
-                    self.recording = False
                     self.dispatch_event("on_recording_finished")
+                    self.recording = False
+
+    def save(self):
+        if self.FPS == 0:
+            self.frames[0].save("frame.jpg")
+        else:
+            self.frames[0].save(
+                "frames.gif",
+                save_all=True,
+                append_images=self.frames[1:],
+                optimize=True,
+                interlace=False,
+                duration=1000/self.FPS,
+            )
 
     def __del__(self):
         self.vc.release()

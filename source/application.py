@@ -1,3 +1,4 @@
+from .audio_manager import AudioManager
 from .camera import Camera
 from .video_manager import VideoManager
 from .scissor import ScissorGroup
@@ -17,6 +18,9 @@ class Application:
         self.batch = pyglet.graphics.Batch()
 
         self.video_manager = VideoManager(0)
+        self.video_manager.push_handlers(self)
+
+        self.audio_manager = AudioManager()
 
         self.scissor = ScissorGroup(0, 0, 640, 360, parent=self.camera)
         self.sprite = pyglet.sprite.Sprite(
@@ -38,12 +42,16 @@ class Application:
 
         fps = self.video_manager.FPS
         if fps == 0:
-            fps = 24
+            fps = self.video_manager.MAX_FPS
+
         pyglet.clock.schedule_interval(self.on_frame, 1/fps)
+        pyglet.clock.schedule(self.on_update)
 
     def on_key_press(self, symbol, modifiers):
         if symbol == key.SPACE:
             self.video_manager.start_recording(5)
+            if self.video_manager.FPS != 0:
+                self.audio_manager.start_recording()
             print("Starting recording")
 
     def on_draw(self):
@@ -51,9 +59,18 @@ class Application:
         self.batch.draw()
         self.fps.draw()
 
+    def on_update(self, dt: float):
+        self.audio_manager.update()
+
     def on_frame(self, dt: float):
         self.video_manager.update()
         self.sprite.image = self.video_manager.image
+
+    def on_recording_finished(self):
+        if self.video_manager.FPS != 0:
+            self.audio_manager.stop_recording()
+            self.audio_manager.save()
+        self.video_manager.save()
 
     def on_resize(self, width: int, height: int):
         scale = self.camera.get_viewport_scale()
@@ -65,3 +82,7 @@ class Application:
 
     def run(self):
         pyglet.app.run()
+
+    def __del__(self):
+        pyglet.clock.unschedule(self.on_frame)
+        pyglet.clock.unschedule(self.on_update)
