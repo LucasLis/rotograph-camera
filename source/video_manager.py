@@ -7,17 +7,17 @@ from typing import Tuple
 
 
 class VideoManager(pyglet.event.EventDispatcher):
-    TARGET_SIZE = TARGET_WIDTH, TARGET_HEIGHT = (640, 360)
     MAX_FPS = 24
-    FPS = 5
 
     image: pyglet.image.ImageData
 
     frames = []
-    frame_count = 0
+    frame_count = -1
     recording = False
 
-    def __init__(self, capture_id=0):
+    _fps: int
+
+    def __init__(self, fps: int, resolution: Tuple[int, int], capture_id=0):
         self.vc = cv2.VideoCapture(capture_id)
 
         frame = self.read_frame()
@@ -34,10 +34,37 @@ class VideoManager(pyglet.event.EventDispatcher):
             self.image.anchor_x = self.image.width // 2
             self.image.anchor_y = self.image.height // 2
 
+        self.resolution = resolution
+        self.fps = fps
+
+    @property
+    def fps(self) -> int:
+        return self._fps
+
+    @fps.setter
+    def fps(self, new_fps: int):
+        if self.recording:
+            print("Cannot change fps while recording.")
+            return
+
+        if new_fps > self.MAX_FPS:
+            print("FPS is too high, setting to max.")
+            new_fps = self.MAX_FPS
+
+        pyglet.clock.unschedule(self.frame)
+
+        preview_fps = new_fps if new_fps > 0 else self.MAX_FPS
+        pyglet.clock.schedule_interval(self.frame, 1/preview_fps)
+        self._fps = new_fps
+
     def start_recording(self, time: int):
+        if self.recording:
+            print("Already recording.")
+            return
+
         self.recording = True
         self.frames = []
-        self.frame_count = time * self.FPS
+        self.frame_count = time * self.fps
 
     def get_size(self, frame: np.ndarray) -> Tuple[int, int]:
         shape = frame.shape
@@ -50,10 +77,10 @@ class VideoManager(pyglet.event.EventDispatcher):
         pil_image = Image.fromarray(frame)
         width, height = pil_image.size
 
-        left = (width - self.TARGET_WIDTH)//2
-        top = (height - self.TARGET_HEIGHT)//2
-        right = (width + self.TARGET_WIDTH)//2
-        bottom = (height + self.TARGET_HEIGHT)//2
+        left = (width - self.resolution[0])//2
+        top = (height - self.resolution[1])//2
+        right = (width + self.resolution[0])//2
+        bottom = (height + self.resolution[1])//2
 
         # Crop the center of the image
         return pil_image.crop((left, top, right, bottom))
@@ -70,25 +97,34 @@ class VideoManager(pyglet.event.EventDispatcher):
 
         return frame[::-1, :, ::-1]  # Flip y axis and flip colours, BGR -> RGB
 
-    def update(self):
+    def frame(self, dt: float):
         frame = self.read_frame()
         if frame is not None:
             data = self.get_data(frame)
             self.image.set_data("RGB", self.image.pitch, data)
+            self.dispatch_event("on_frame_ready")
 
-            if self.recording:
-                if self.frame_count > 0:
-                    self.frames.append(self.crop_frame(frame))
-                    self.frame_count -= 1
-                else:
-                    if self.FPS == 0:
-                        self.frames.append(self.crop_frame(frame))
+            if self.frame_count > 0:
+                self.frames.append(frame)
+                self.frame_count -= 1
+            elif self.frame_count == 0:
+                if self.fps == 0:
+                    self.frames.append(frame)
 
-                    self.dispatch_event("on_recording_finished")
-                    self.recording = False
+                self.dispatch_event("on_recording_finished")
+                self.recording = False
 
     def save(self):
-        if self.FPS == 0:
+        if len(self.frames) == 0:
+            print("No frames to save.")
+            return
+
+        self.frames = list(map(
+            lambda frame: self.crop_frame(frame),
+            self.frames
+        ))
+
+        if self.fps == 0:
             self.frames[0].save("frame.jpg")
         else:
             self.frames[0].save(
@@ -97,7 +133,7 @@ class VideoManager(pyglet.event.EventDispatcher):
                 append_images=self.frames[1:],
                 optimize=True,
                 interlace=False,
-                duration=1000/self.FPS,
+                duration=1000/self.fps,
             )
 
     def __del__(self):
@@ -105,3 +141,4 @@ class VideoManager(pyglet.event.EventDispatcher):
 
 
 VideoManager.register_event_type("on_recording_finished")
+VideoManager.register_event_type("on_frame_ready")
