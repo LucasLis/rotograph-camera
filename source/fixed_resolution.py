@@ -44,8 +44,6 @@ class FixedResolution:
         self._filtered = filtered
         self._viewport = 0, 0, 0, 0, 0
         self._calculate_viewport(self.window.width, self.window.height)
-        self._cam_x = 0
-        self._cam_y = 0
         self.clear_color = 0, 0, 0, 1
 
         self.texture = pyglet.image.Texture.create(
@@ -95,11 +93,6 @@ class FixedResolution:
         glLoadIdentity()
         glOrtho(0, self.width, 0, self.height, -255, 255)
         glMatrixMode(GL_MODELVIEW)
-        glTranslatef(self._cam_x, self._cam_y, 0)
-
-    def set_camera(self, x=0, y=0):
-        self._cam_x = -x
-        self._cam_y = -y
 
     def __exit__(self, *unused):
         win = self.window

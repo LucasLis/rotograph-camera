@@ -47,6 +47,7 @@ class Application:
             self.video_manager.fps,
             self.TARGET_RESOLUTION
         )
+        self.interface.push_handlers(self)
 
     def save(self, _=None):
         if self.video_manager.fps != 0:
@@ -73,29 +74,27 @@ class Application:
         self.interface.saving = True
         pyglet.clock.schedule_once(self.save, 0.1)
 
+    def on_mouse_release(self, x, y, button, modifiers):
+        x -= self.viewport._viewport[0]
+        y -= self.viewport._viewport[1]
+        x *= self.TARGET_RESOLUTION.x / (self.viewport._viewport[3])
+        y *= self.TARGET_RESOLUTION.y / (self.viewport._viewport[4])
+        self.interface.mouse_released(x, y)
+
     def on_key_press(self, symbol, modifiers):
         match symbol:
             case key.F11:
                 self.window.set_fullscreen(not self.window.fullscreen)
-            case key.SPACE:
-                if self.video_manager.recording:
-                    self.stop_recording()
-                else:
-                    self.start_recording()
-            case key.PERIOD:
-                self.interface.crosshair = not self.interface.crosshair
-            case key.COMMA:
-                self.interface.grid = not self.interface.grid
-            case key.EQUAL:
-                self.video_manager.fps += 1
-                self.interface.fps = self.video_manager.fps
-            case key.MINUS:
-                self.video_manager.fps -= 1
-                self.interface.fps = self.video_manager.fps
-            case key.A:
-                self.interface.about = not self.interface.about
-            case key.S:
-                self.interface.settings = not self.interface.settings
+
+    def on_fps_change(self, new_fps):
+        self.video_manager.fps = new_fps
+        self.interface.fps = self.video_manager.fps
+
+    def on_rec_pressed(self):
+        if self.video_manager.recording:
+            self.stop_recording()
+        else:
+            self.start_recording()
 
     def on_draw(self):
         self.window.clear()

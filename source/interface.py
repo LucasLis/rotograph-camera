@@ -13,7 +13,7 @@ class Layers(IntEnum):
     WINDOW_UI = 4
 
 
-class Interface:
+class Interface(pyglet.event.EventDispatcher):
     _grid = False
     _crosshair = False
     _recording = False
@@ -311,3 +311,41 @@ class Interface:
     def saving(self, value: bool):
         self._saving = value
         self.saving_text.visible = value
+
+    def check_click(self, x, y, item: pyglet.sprite.Sprite):
+        return (
+            item.x < x < item.x + item.width
+            and item.y < y < item.y + item.height
+        )
+
+    def mouse_released(self, x, y):
+        if self.check_click(x, y, self.rec_button):
+            self.dispatch_event("on_rec_pressed")
+        elif self.check_click(x, y, self.settings_quit_sprite):
+            self.settings = False
+        elif self.check_click(x, y, self.settings_grid_toggle):
+            self.grid = not self.grid
+        elif self.check_click(x, y, self.settings_centre_toggle):
+            self.crosshair = not self.crosshair
+        elif self.check_click(x, y, self.settings_timer_toggle):
+            self.timer = not self.timer
+        elif self.check_click(x, y, self.settings_monochrome_toggle):
+            self.monochrome = not self.monochrome
+        elif self.check_click(x, y, self.settings_fps_more):
+            self.dispatch_event("on_fps_change", self.fps + 1)
+        elif self.check_click(x, y, self.settings_fps_less):
+            self.dispatch_event("on_fps_change", self.fps - 1)
+        elif self.check_click(x, y, self.settings_mute_toggle):
+            self.mute = not self.mute
+        elif self.check_click(x, y, self.about_quit_sprite):
+            self.about = False
+        elif self.check_click(x, y, self.settings_quit_sprite):
+            self.settings = False
+        elif self.check_click(x, y, self.settings_button):
+            self.settings = not self.settings
+        elif self.check_click(x, y, self.about_button):
+            self.about = not self.about
+
+
+Interface.register_event_type("on_fps_change")
+Interface.register_event_type("on_rec_pressed")
