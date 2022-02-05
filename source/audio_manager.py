@@ -58,5 +58,4 @@ class AudioManager:
         wf.close()
 
     def __del__(self):
-        pyglet.clock.unschedule(self.frame)
         self.pyaudio.terminate()

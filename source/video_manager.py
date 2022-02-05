@@ -50,6 +50,9 @@ class VideoManager(pyglet.event.EventDispatcher):
         if new_fps > self.MAX_FPS:
             print("FPS is too high, setting to max.")
             new_fps = self.MAX_FPS
+        if new_fps < 0:
+            print("FPS is too low, setting to 0.")
+            new_fps = 0
 
         pyglet.clock.unschedule(self.frame)
 
@@ -138,7 +141,6 @@ class VideoManager(pyglet.event.EventDispatcher):
             )
 
     def __del__(self):
-        pyglet.clock.unschedule(self.frame)
         self.vc.release()
 
 

@@ -1,9 +1,11 @@
 from .audio_manager import AudioManager
 from .video_manager import VideoManager
 from .fixed_resolution import FixedResolution
+from .interface import Interface, Layers
 
 import pyglet
 from pyglet.window import key
+from pyglet.graphics import OrderedGroup
 from pyglet.math import Vec2
 
 
@@ -27,7 +29,7 @@ class Application:
         self.viewport = FixedResolution(self.window, *self.TARGET_RESOLUTION)
         self.batch = pyglet.graphics.Batch()
 
-        self.video_manager = VideoManager(0, self.TARGET_RESOLUTION)
+        self.video_manager = VideoManager(10, self.TARGET_RESOLUTION)
         self.video_manager.push_handlers(self)
 
         self.audio_manager = AudioManager()
@@ -35,15 +37,38 @@ class Application:
         self.preview_sprite = pyglet.sprite.Sprite(
             self.video_manager.image,
             self.TARGET_RESOLUTION.x // 2, self.TARGET_RESOLUTION.y // 2,
+            group=OrderedGroup(Layers.PREVIEW),
             batch=self.batch,
         )
 
+        self.interface = Interface(
+            self.batch,
+            self.video_manager.fps,
+            self.TARGET_RESOLUTION
+        )
+
     def on_key_press(self, symbol, modifiers):
-        if symbol == key.SPACE:
-            self.video_manager.start_recording(self.LENGTH)
-            if self.video_manager.fps != 0:
-                self.audio_manager.start_recording()
-            print("Starting recording")
+        match symbol:
+            case key.SPACE:
+                self.video_manager.start_recording(self.LENGTH)
+                if self.video_manager.fps != 0:
+                    self.audio_manager.start_recording()
+                print("Starting recording")
+                self.interface.recording = True
+            case key.PERIOD:
+                self.interface.crosshair = not self.interface.crosshair
+            case key.COMMA:
+                self.interface.grid = not self.interface.grid
+            case key.EQUAL:
+                self.video_manager.fps += 1
+                self.interface.fps = self.video_manager.fps
+            case key.MINUS:
+                self.video_manager.fps -= 1
+                self.interface.fps = self.video_manager.fps
+            case key.A:
+                self.interface.about = not self.interface.about
+            case key.S:
+                self.interface.settings = not self.interface.settings
 
     def on_draw(self):
         self.window.clear()
@@ -60,6 +85,7 @@ class Application:
             self.audio_manager.save()
         self.video_manager.save()
         print("Video (and audio) saved")
+        self.interface.recording = False
 
     def run(self):
         pyglet.app.run()
