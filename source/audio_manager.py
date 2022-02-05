@@ -1,9 +1,10 @@
 import pyaudio
+import pyglet
 import wave
 
 
 class AudioManager:
-    CHUNK_SIZE = 1024  # Record in chunks of 1024 samples
+    CHUNK_SIZE = 1024  # Record in chunks of 512 samples
     SAMPLE_FORMAT = pyaudio.paInt16  # 16 bits per sample
     CHANNELS = 2
     FS = 44100  # Record at 44100 samples per second
@@ -14,6 +15,8 @@ class AudioManager:
 
     def __init__(self):
         self.pyaudio = pyaudio.PyAudio()  # Create an interface to PortAudio
+
+        pyglet.clock.schedule_interval(self.frame, self.CHUNK_SIZE/self.FS)
 
     def start_recording(self):
         if self.recording:
@@ -30,7 +33,7 @@ class AudioManager:
         self.recording = True
         self.frames = []
 
-    def update(self):
+    def frame(self, dt: float):
         if self.recording:
             data = self.stream.read(self.CHUNK_SIZE)
             self.frames.append(data)
@@ -55,4 +58,5 @@ class AudioManager:
         wf.close()
 
     def __del__(self):
+        pyglet.clock.unschedule(self.frame)
         self.pyaudio.terminate()

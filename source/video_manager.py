@@ -104,39 +104,41 @@ class VideoManager(pyglet.event.EventDispatcher):
             self.image.set_data("RGB", self.image.pitch, data)
             self.dispatch_event("on_frame_ready")
 
-            if self.frame_count > 0:
-                self.frames.append(frame)
-                self.frame_count -= 1
-            elif self.frame_count == 0:
-                if self.fps == 0:
+            if self.recording:
+                if self.frame_count > 0:
                     self.frames.append(frame)
+                    self.frame_count -= 1
+                else:
+                    if self.fps == 0:
+                        self.frames.append(frame)
 
-                self.dispatch_event("on_recording_finished")
-                self.recording = False
+                    self.dispatch_event("on_recording_finished")
+                    self.recording = False
 
     def save(self):
         if len(self.frames) == 0:
             print("No frames to save.")
             return
 
-        self.frames = list(map(
+        frames = list(map(
             lambda frame: self.crop_frame(frame),
             self.frames
         ))
 
         if self.fps == 0:
-            self.frames[0].save("frame.jpg")
+            frames[0].save("frame.jpg")
         else:
-            self.frames[0].save(
+            frames[0].save(
                 "frames.gif",
                 save_all=True,
-                append_images=self.frames[1:],
+                append_images=frames[1:],
                 optimize=True,
                 interlace=False,
                 duration=1000/self.fps,
             )
 
     def __del__(self):
+        pyglet.clock.unschedule(self.frame)
         self.vc.release()
 
 

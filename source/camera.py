@@ -1,4 +1,3 @@
-
 """ Camera system using graphics groups.
 
 Classes:
@@ -17,9 +16,6 @@ class Camera(Group):
     """ Pyglet graphics group emulating the behaviour of a camera in 2D space.
     """
 
-    # Define a target viewport resolution
-    VIEW_RESOLUTION = Vec2(640, 360)
-
     # Define a starting window size, this will be immediately overwritten by
     # the on_resize event
     window_size = Vec2(0, 0)
@@ -27,11 +23,13 @@ class Camera(Group):
     def __init__(
         self,
         x: float, y: float,  # Position
+        target_resolution: Vec2,
         zoom: float = 1.0,
-        parent_group: Optional[Group] = None
+        parent: Optional[Group] = None
     ):
         """ Initialise group with parent, zoom and position. """
-        super().__init__(parent_group)
+        super().__init__(parent)
+        self.target_resolution = target_resolution
         self.zoom = zoom
 
     def on_resize(self, width: float, height: float):
@@ -45,8 +43,8 @@ class Camera(Group):
         Use min() here to find the smaller of the two axis' zooms.
         """
         return min(
-            self.window_size.x / self.VIEW_RESOLUTION.x,
-            self.window_size.y / self.VIEW_RESOLUTION.y
+            self.window_size.x / self.target_resolution.x,
+            self.window_size.y / self.target_resolution.y
         )
 
     def set_state(self):
