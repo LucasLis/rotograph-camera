@@ -17,6 +17,7 @@ class Interface:
     _grid = False
     _crosshair = False
     _recording = False
+    _saving = False
     _about = False
     _settings = False
     _fps = 0
@@ -38,12 +39,20 @@ class Interface:
 
     def init_main_ui(self):
         self.main_ui = pyglet.sprite.Sprite(
-            pyglet.resource.image("assets/Camera Default.png"),
+            pyglet.resource.image("assets/Main UI.png"),
             0, 0,
             batch=self.batch,
             group=OrderedGroup(Layers.MAIN_UI)
         )
         self.main_ui.scale = 2
+
+        self.rec_button = pyglet.sprite.Sprite(
+            pyglet.resource.image("assets/Rec Idle.png"),
+            6, self.target_resolution.y-24,
+            batch=self.batch,
+            group=OrderedGroup(Layers.BUTTONS)
+        )
+        self.rec_button.scale = 2
 
         self.grid_sprite = pyglet.sprite.Sprite(
             pyglet.resource.image("assets/Grid.png"),
@@ -71,6 +80,16 @@ class Interface:
             group=OrderedGroup(Layers.BUTTONS)
         )
         self.fps_display.scale = 2
+
+        self.saving_text = pyglet.sprite.Sprite(
+            pyglet.resource.image("assets/Saving.png"),
+            self.target_resolution.x//2 - 43,
+            self.target_resolution.y-24,
+            batch=self.batch,
+            group=OrderedGroup(Layers.BUTTONS)
+        )
+        self.saving_text.scale = 2
+        self.saving_text.visible = self.saving
 
         self.settings_button = pyglet.sprite.Sprite(
             pyglet.resource.image("assets/SettingsIcon.png"),
@@ -100,6 +119,15 @@ class Interface:
         self.about_window.scale = 2
         self.about_window.visible = self.about
 
+        self.about_quit_sprite = pyglet.sprite.Sprite(
+            pyglet.resource.image("assets/Quit.png"),
+            20, self.target_resolution.y-58,
+            batch=self.batch,
+            group=OrderedGroup(Layers.WINDOW_UI)
+        )
+        self.about_quit_sprite.scale = 2
+        self.about_quit_sprite.visible = self.about
+
     def init_settings_window(self):
         self.settings_window = pyglet.sprite.Sprite(
             pyglet.resource.image("assets/Settings.png"),
@@ -110,6 +138,87 @@ class Interface:
         self.settings_window.scale = 2
         self.settings_window.visible = self.settings
 
+        self.settings_quit_sprite = pyglet.sprite.Sprite(
+            pyglet.resource.image("assets/Quit.png"),
+            20, self.target_resolution.y-58,
+            batch=self.batch,
+            group=OrderedGroup(Layers.WINDOW_UI)
+        )
+        self.settings_quit_sprite.scale = 2
+        self.settings_quit_sprite.visible = self.settings
+
+        self.settings_grid_toggle = pyglet.sprite.Sprite(
+            pyglet.resource.image("assets/Off.png"),
+            76, self.target_resolution.y-92,
+            batch=self.batch,
+            group=OrderedGroup(Layers.WINDOW_UI)
+        )
+        self.settings_grid_toggle.scale = 2
+        self.settings_grid_toggle.visible = self.settings
+
+        self.settings_centre_toggle = pyglet.sprite.Sprite(
+            pyglet.resource.image("assets/Off.png"),
+            164, self.target_resolution.y-116,
+            batch=self.batch,
+            group=OrderedGroup(Layers.WINDOW_UI)
+        )
+        self.settings_centre_toggle.scale = 2
+        self.settings_centre_toggle.visible = self.settings
+
+        self.settings_timer_toggle = pyglet.sprite.Sprite(
+            pyglet.resource.image("assets/Off.png"),
+            148, self.target_resolution.y-140,
+            batch=self.batch,
+            group=OrderedGroup(Layers.WINDOW_UI)
+        )
+        self.settings_timer_toggle.scale = 2
+        self.settings_timer_toggle.visible = self.settings
+
+        self.settings_monochrome_toggle = pyglet.sprite.Sprite(
+            pyglet.resource.image("assets/Off.png"),
+            148, self.target_resolution.y-164,
+            batch=self.batch,
+            group=OrderedGroup(Layers.WINDOW_UI)
+        )
+        self.settings_monochrome_toggle.scale = 2
+        self.settings_monochrome_toggle.visible = self.settings
+
+        self.settings_fps_more = pyglet.sprite.Sprite(
+            pyglet.resource.image("assets/More.png"),
+            214, self.target_resolution.y-186,
+            batch=self.batch,
+            group=OrderedGroup(Layers.WINDOW_UI)
+        )
+        self.settings_fps_more.scale = 2
+        self.settings_fps_more.visible = self.settings
+
+        self.settings_fps_less = pyglet.sprite.Sprite(
+            pyglet.resource.image("assets/Less.png"),
+            230, self.target_resolution.y-186,
+            batch=self.batch,
+            group=OrderedGroup(Layers.WINDOW_UI)
+        )
+        self.settings_fps_less.scale = 2
+        self.settings_fps_less.visible = self.settings
+
+        self.settings_fps_text = pyglet.sprite.Sprite(
+            pyglet.resource.image(f"assets/{self.fps:02}.png"),
+            246, self.target_resolution.y-188,
+            batch=self.batch,
+            group=OrderedGroup(Layers.WINDOW_UI)
+        )
+        self.settings_fps_text.scale = 2
+        self.settings_fps_text.visible = self.settings
+
+        self.settings_mute_toggle = pyglet.sprite.Sprite(
+            pyglet.resource.image("assets/Off.png"),
+            76, self.target_resolution.y-212,
+            batch=self.batch,
+            group=OrderedGroup(Layers.WINDOW_UI)
+        )
+        self.settings_mute_toggle.scale = 2
+        self.settings_mute_toggle.visible = self.settings
+
     @property
     def grid(self) -> bool:
         return self._grid
@@ -118,6 +227,11 @@ class Interface:
     def grid(self, value: bool):
         self._grid = value
         self.grid_sprite.visible = value
+        if value:
+            image = pyglet.resource.image("assets/On.png")
+        else:
+            image = pyglet.resource.image("assets/Off.png")
+        self.settings_grid_toggle.image = image
 
     @property
     def crosshair(self) -> bool:
@@ -127,6 +241,11 @@ class Interface:
     def crosshair(self, value: bool):
         self._crosshair = value
         self.crosshair_sprite.visible = value
+        if value:
+            image = pyglet.resource.image("assets/On.png")
+        else:
+            image = pyglet.resource.image("assets/Off.png")
+        self.settings_centre_toggle.image = image
 
     @property
     def recording(self) -> bool:
@@ -136,10 +255,10 @@ class Interface:
     def recording(self, value: bool):
         self._recording = value
         if value:
-            image = pyglet.resource.image("assets/Camera Recording.png")
+            image = pyglet.resource.image("assets/Rec Recording.png")
         else:
-            image = pyglet.resource.image("assets/Camera Default.png")
-        self.main_ui.image = image
+            image = pyglet.resource.image("assets/Rec Idle.png")
+        self.rec_button.image = image
 
     @property
     def about(self) -> bool:
@@ -151,6 +270,7 @@ class Interface:
             self.settings = False
         self._about = value
         self.about_window.visible = value
+        self.about_quit_sprite.visible = value
 
     @property
     def settings(self) -> bool:
@@ -162,6 +282,15 @@ class Interface:
             self.about = False
         self._settings = value
         self.settings_window.visible = value
+        self.settings_quit_sprite.visible = value
+        self.settings_grid_toggle.visible = value
+        self.settings_centre_toggle.visible = value
+        self.settings_timer_toggle.visible = value
+        self.settings_monochrome_toggle.visible = value
+        self.settings_fps_more.visible = value
+        self.settings_fps_less.visible = value
+        self.settings_fps_text.visible = value
+        self.settings_mute_toggle.visible = value
 
     @property
     def fps(self) -> int:
@@ -172,3 +301,13 @@ class Interface:
         self._fps = value
         image = pyglet.resource.image(f"assets/{value:02}.png")
         self.fps_display.image = image
+        self.settings_fps_text.image = image
+
+    @property
+    def saving(self) -> bool:
+        return self._saving
+
+    @saving.setter
+    def saving(self, value: bool):
+        self._saving = value
+        self.saving_text.visible = value

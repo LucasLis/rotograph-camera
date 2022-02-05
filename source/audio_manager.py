@@ -4,7 +4,7 @@ import wave
 
 
 class AudioManager:
-    CHUNK_SIZE = 1024  # Record in chunks of 512 samples
+    CHUNK_SIZE = 4096  # Record in chunks of 512 samples
     SAMPLE_FORMAT = pyaudio.paInt16  # 16 bits per sample
     CHANNELS = 2
     FS = 44100  # Record at 44100 samples per second
@@ -33,7 +33,7 @@ class AudioManager:
         self.recording = True
         self.frames = []
 
-    def frame(self, dt: float):
+    def frame(self, _=None):
         if self.recording:
             data = self.stream.read(self.CHUNK_SIZE)
             self.frames.append(data)
@@ -42,6 +42,7 @@ class AudioManager:
         if not self.recording:
             print("Not currently recording.")
             return
+        self.frame()
         self.recording = False
 
         # Stop and close the stream

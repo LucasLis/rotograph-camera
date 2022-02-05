@@ -60,14 +60,20 @@ class VideoManager(pyglet.event.EventDispatcher):
         pyglet.clock.schedule_interval(self.frame, 1/preview_fps)
         self._fps = new_fps
 
-    def start_recording(self, time: int):
+    def start_recording(self):
         if self.recording:
             print("Already recording.")
             return
 
         self.recording = True
         self.frames = []
-        self.frame_count = time * self.fps
+
+    def stop_recording(self):
+        if not self.recording:
+            print("Not recording.")
+            return
+
+        self.recording = False
 
     def get_size(self, frame: np.ndarray) -> Tuple[int, int]:
         shape = frame.shape
@@ -100,7 +106,7 @@ class VideoManager(pyglet.event.EventDispatcher):
 
         return frame[::-1, :, ::-1]  # Flip y axis and flip colours, BGR -> RGB
 
-    def frame(self, dt: float):
+    def frame(self, _=None):
         frame = self.read_frame()
         if frame is not None:
             data = self.get_data(frame)
@@ -108,17 +114,14 @@ class VideoManager(pyglet.event.EventDispatcher):
             self.dispatch_event("on_frame_ready")
 
             if self.recording:
-                if self.frame_count > 0:
-                    self.frames.append(frame)
-                    self.frame_count -= 1
-                else:
-                    if self.fps == 0:
-                        self.frames.append(frame)
-
-                    self.dispatch_event("on_recording_finished")
-                    self.recording = False
+                self.frames.append(frame)
 
     def save(self):
+        if self.fps == 0:
+            frame = self.read_frame()
+            self.crop_frame(frame).save("frame.jpg")
+            return
+
         if len(self.frames) == 0:
             print("No frames to save.")
             return
@@ -128,21 +131,17 @@ class VideoManager(pyglet.event.EventDispatcher):
             self.frames
         ))
 
-        if self.fps == 0:
-            frames[0].save("frame.jpg")
-        else:
-            frames[0].save(
-                "frames.gif",
-                save_all=True,
-                append_images=frames[1:],
-                optimize=True,
-                interlace=False,
-                duration=1000/self.fps,
-            )
+        frames[0].save(
+            "frames.gif",
+            save_all=True,
+            append_images=frames[1:],
+            optimize=True,
+            interlace=False,
+            duration=1000/self.fps,
+        )
 
     def __del__(self):
         self.vc.release()
 
 
-VideoManager.register_event_type("on_recording_finished")
 VideoManager.register_event_type("on_frame_ready")

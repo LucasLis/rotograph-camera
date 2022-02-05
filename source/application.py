@@ -20,6 +20,7 @@ class Application:
     def __init__(self):
         self.window = pyglet.window.Window(
             *self.TARGET_RESOLUTION,
+            caption="Rotoscope Camera",
             resizable=True
         )
         self.fps = pyglet.window.FPSDisplay(self.window)
@@ -29,7 +30,7 @@ class Application:
         self.viewport = FixedResolution(self.window, *self.TARGET_RESOLUTION)
         self.batch = pyglet.graphics.Batch()
 
-        self.video_manager = VideoManager(10, self.TARGET_RESOLUTION)
+        self.video_manager = VideoManager(24, self.TARGET_RESOLUTION)
         self.video_manager.push_handlers(self)
 
         self.audio_manager = AudioManager()
@@ -47,14 +48,40 @@ class Application:
             self.TARGET_RESOLUTION
         )
 
+    def save(self, _=None):
+        if self.video_manager.fps != 0:
+            self.audio_manager.save()
+        self.video_manager.save()
+        self.interface.saving = False
+
+    def start_recording(self):
+        if self.video_manager.fps != 0:
+            self.interface.recording = True
+            self.video_manager.start_recording()
+            self.audio_manager.start_recording()
+        else:
+            self.interface.saving = True
+            pyglet.clock.schedule_once(self.save, 0.1)
+
+    def stop_recording(self):
+        self.interface.recording = False
+
+        self.video_manager.stop_recording()
+        if self.video_manager.fps != 0:
+            self.audio_manager.stop_recording()
+
+        self.interface.saving = True
+        pyglet.clock.schedule_once(self.save, 0.1)
+
     def on_key_press(self, symbol, modifiers):
         match symbol:
+            case key.F11:
+                self.window.set_fullscreen(not self.window.fullscreen)
             case key.SPACE:
-                self.video_manager.start_recording(self.LENGTH)
-                if self.video_manager.fps != 0:
-                    self.audio_manager.start_recording()
-                print("Starting recording")
-                self.interface.recording = True
+                if self.video_manager.recording:
+                    self.stop_recording()
+                else:
+                    self.start_recording()
             case key.PERIOD:
                 self.interface.crosshair = not self.interface.crosshair
             case key.COMMA:
@@ -78,14 +105,6 @@ class Application:
 
     def on_frame_ready(self):
         self.preview_sprite.image = self.video_manager.image
-
-    def on_recording_finished(self):
-        if self.video_manager.fps != 0:
-            self.audio_manager.stop_recording()
-            self.audio_manager.save()
-        self.video_manager.save()
-        print("Video (and audio) saved")
-        self.interface.recording = False
 
     def run(self):
         pyglet.app.run()
