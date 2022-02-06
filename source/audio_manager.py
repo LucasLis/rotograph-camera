@@ -4,7 +4,7 @@ import wave
 
 
 class AudioManager:
-    CHUNK_SIZE = 4096  # Record in chunks of 512 samples
+    CHUNK_SIZE = 4096  # Record in chunks of 4096 samples
     SAMPLE_FORMAT = pyaudio.paInt16  # 16 bits per sample
     CHANNELS = 2
     FS = 44100  # Record at 44100 samples per second

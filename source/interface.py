@@ -42,6 +42,8 @@ class Interface(pyglet.event.EventDispatcher):
 
         self.fps = fps
 
+        self.player = pyglet.media.Player()
+
     def init_main_ui(self):
         self.main_ui = pyglet.sprite.Sprite(
             pyglet.resource.image("assets/Main UI.png"),
@@ -374,10 +376,20 @@ class Interface(pyglet.event.EventDispatcher):
             image = f"assets/Countdown {time_remaining}.png"
             self.timer_text.image = pyglet.resource.image(image)
             self.timer_text.visible = True
+
+            if time_remaining >= 4:
+                path = "assets/10-4.ogg"
+            else:
+                path = "assets/3-1.ogg"
+
             pyglet.clock.schedule_once(self.update_timer, 1, time_remaining-1)
         else:
+            path = "assets/0.ogg"
             self.abort_timer()
             self.dispatch_event("on_timer_complete")
+
+        self.player.queue(pyglet.resource.media(path))
+        self.player.play()
 
     def abort_timer(self):
         self.timer_running = False
