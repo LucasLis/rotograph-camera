@@ -50,6 +50,10 @@ class AudioManager:
         self.stream.close()
 
     def save(self):
+        if len(self.frames) == 0:
+            print("No audio to save!")
+            return
+
         # Save the recorded data as a WAV file
         wf = wave.open(self.FILENAME, 'wb')
         wf.setnchannels(self.CHANNELS)

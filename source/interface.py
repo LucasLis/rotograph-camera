@@ -21,6 +21,7 @@ class Interface(pyglet.event.EventDispatcher):
     _about = False
     _settings = False
     _fps = 0
+    _mute = False
 
     def __init__(
             self,
@@ -246,6 +247,19 @@ class Interface(pyglet.event.EventDispatcher):
         else:
             image = pyglet.resource.image("assets/Off.png")
         self.settings_centre_toggle.image = image
+
+    @property
+    def mute(self) -> bool:
+        return self._mute
+
+    @mute.setter
+    def mute(self, value: bool):
+        self._mute = value
+        if value:
+            image = pyglet.resource.image("assets/On.png")
+        else:
+            image = pyglet.resource.image("assets/Off.png")
+        self.settings_mute_toggle.image = image
 
     @property
     def recording(self) -> bool:

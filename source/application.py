@@ -59,7 +59,8 @@ class Application:
         if self.video_manager.fps != 0:
             self.interface.recording = True
             self.video_manager.start_recording()
-            self.audio_manager.start_recording()
+            if not self.interface.mute:
+                self.audio_manager.start_recording()
         else:
             self.interface.saving = True
             pyglet.clock.schedule_once(self.save, 0.1)
