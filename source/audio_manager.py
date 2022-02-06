@@ -33,7 +33,7 @@ class AudioManager:
         self.recording = True
         self.frames = []
 
-    def frame(self, _=None):
+    def frame(self, dt: float = None):
         if self.recording:
             data = self.stream.read(self.CHUNK_SIZE)
             self.frames.append(data)

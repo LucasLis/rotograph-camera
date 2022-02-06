@@ -49,7 +49,7 @@ class Application:
         )
         self.interface.push_handlers(self)
 
-    def save(self, _=None):
+    def save(self, dt: float = None):
         if self.video_manager.fps != 0:
             self.audio_manager.save()
         self.video_manager.save()
@@ -94,8 +94,16 @@ class Application:
     def on_rec_pressed(self):
         if self.video_manager.recording:
             self.stop_recording()
+        elif self.interface.timer:
+            if self.interface.timer_running:
+                self.interface.abort_timer()  # TODO: Implement Me!
+            else:
+                self.interface.start_timer()
         else:
             self.start_recording()
+
+    def on_timer_complete(self):
+        self.start_recording()
 
     def on_draw(self):
         self.window.clear()

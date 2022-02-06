@@ -22,6 +22,9 @@ class Interface(pyglet.event.EventDispatcher):
     _settings = False
     _fps = 0
     _mute = False
+    _timer = False
+
+    timer_running = False
 
     def __init__(
             self,
@@ -54,6 +57,15 @@ class Interface(pyglet.event.EventDispatcher):
             group=OrderedGroup(Layers.BUTTONS)
         )
         self.rec_button.scale = 2
+
+        self.timer_text = pyglet.sprite.Sprite(
+            pyglet.resource.image("assets/Countdown 9.png"),
+            self.target_resolution.x//2-13, self.target_resolution.y//2+10,
+            batch=self.batch,
+            group=OrderedGroup(Layers.MAIN_UI)
+        )
+        self.timer_text.scale = 2
+        self.timer_text.visible = False
 
         self.grid_sprite = pyglet.sprite.Sprite(
             pyglet.resource.image("assets/Grid.png"),
@@ -262,6 +274,19 @@ class Interface(pyglet.event.EventDispatcher):
         self.settings_mute_toggle.image = image
 
     @property
+    def timer(self) -> bool:
+        return self._timer
+
+    @timer.setter
+    def timer(self, value: bool):
+        self._timer = value
+        if value:
+            image = pyglet.resource.image("assets/On.png")
+        else:
+            image = pyglet.resource.image("assets/Off.png")
+        self.settings_timer_toggle.image = image
+
+    @property
     def recording(self) -> bool:
         return self._recording
 
@@ -326,6 +351,25 @@ class Interface(pyglet.event.EventDispatcher):
         self._saving = value
         self.saving_text.visible = value
 
+    def start_timer(self):
+        self.timer_running = True
+        self.update_timer(0, 10)
+
+    def update_timer(self, dt: float, time_remaining: int):
+        if time_remaining > 0:
+            image = f"assets/Countdown {time_remaining}.png"
+            self.timer_text.image = pyglet.resource.image(image)
+            self.timer_text.visible = True
+            pyglet.clock.schedule_once(self.update_timer, 1, time_remaining-1)
+        else:
+            self.abort_timer()
+            self.dispatch_event("on_timer_complete")
+
+    def abort_timer(self):
+        self.timer_running = False
+        self.timer_text.visible = False
+        pyglet.clock.unschedule(self.update_timer)
+
     def check_click(self, x, y, item: pyglet.sprite.Sprite):
         return (
             item.x < x < item.x + item.width
@@ -363,3 +407,4 @@ class Interface(pyglet.event.EventDispatcher):
 
 Interface.register_event_type("on_fps_change")
 Interface.register_event_type("on_rec_pressed")
+Interface.register_event_type("on_timer_complete")

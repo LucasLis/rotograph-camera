@@ -106,7 +106,7 @@ class VideoManager(pyglet.event.EventDispatcher):
 
         return frame[::-1, :, ::-1]  # Flip y axis and flip colours, BGR -> RGB
 
-    def frame(self, _=None):
+    def frame(self, dt: float = None):
         frame = self.read_frame()
         if frame is not None:
             data = self.get_data(frame)
