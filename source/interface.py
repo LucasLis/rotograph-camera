@@ -22,6 +22,7 @@ class Interface(pyglet.event.EventDispatcher):
     _settings = False
     _fps = 0
     _mute = False
+    _monochrome = False
     _timer = False
 
     timer_running = False
@@ -287,6 +288,19 @@ class Interface(pyglet.event.EventDispatcher):
         self.settings_timer_toggle.image = image
 
     @property
+    def monochrome(self) -> bool:
+        return self._monochrome
+
+    @monochrome.setter
+    def monochrome(self, value: bool):
+        self._monochrome = value
+        if value:
+            image = pyglet.resource.image("assets/On.png")
+        else:
+            image = pyglet.resource.image("assets/Off.png")
+        self.settings_monochrome_toggle.image = image
+
+    @property
     def recording(self) -> bool:
         return self._recording
 
@@ -389,6 +403,7 @@ class Interface(pyglet.event.EventDispatcher):
             self.timer = not self.timer
         elif self.check_click(x, y, self.settings_monochrome_toggle):
             self.monochrome = not self.monochrome
+            self.dispatch_event("on_monochrome_change", self.monochrome)
         elif self.check_click(x, y, self.settings_fps_more):
             self.dispatch_event("on_fps_change", self.fps + 1)
         elif self.check_click(x, y, self.settings_fps_less):
@@ -408,3 +423,4 @@ class Interface(pyglet.event.EventDispatcher):
 Interface.register_event_type("on_fps_change")
 Interface.register_event_type("on_rec_pressed")
 Interface.register_event_type("on_timer_complete")
+Interface.register_event_type("on_monochrome_change")

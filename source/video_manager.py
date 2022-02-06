@@ -15,11 +15,19 @@ class VideoManager(pyglet.event.EventDispatcher):
     frame_count = -1
     recording = False
 
+    monochrome = False
+
     _fps: int
 
     def __init__(self, fps: int, resolution: Tuple[int, int], capture_id=0):
         self.vc = cv2.VideoCapture(capture_id)
 
+        self.init_image()
+
+        self.resolution = resolution
+        self.fps = fps
+
+    def init_image(self):
         frame = self.read_frame()
         if frame is not None:
             size = self.get_size(frame)
@@ -30,12 +38,8 @@ class VideoManager(pyglet.event.EventDispatcher):
                 "RGB",
                 data
             )
-            self.image.get_texture()
             self.image.anchor_x = self.image.width // 2
             self.image.anchor_y = self.image.height // 2
-
-        self.resolution = resolution
-        self.fps = fps
 
     @property
     def fps(self) -> int:
@@ -83,7 +87,7 @@ class VideoManager(pyglet.event.EventDispatcher):
         return frame.flatten().tostring()
 
     def crop_frame(self, frame: np.ndarray) -> Image:
-        pil_image = Image.fromarray(frame)
+        pil_image = Image.fromarray(frame[::-1, :, :])
         width, height = pil_image.size
 
         left = (width - self.resolution[0])//2
@@ -104,12 +108,20 @@ class VideoManager(pyglet.event.EventDispatcher):
             print("Failed to read frame, rval was False.")
             return
 
-        return frame[::-1, :, ::-1]  # Flip y axis and flip colours, BGR -> RGB
+        if self.monochrome:
+            frame = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
+            # Saturation
+            frame[:, :, 1] = frame[:, :, 1] * 0.0  # TODO: Configure me!
+            # Value
+            frame[:, :, 2] = frame[:, :, 2] * 0.4
+            return cv2.cvtColor(frame, cv2.COLOR_HSV2RGB)
+        else:
+            return cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
 
     def frame(self, dt: float = None):
         frame = self.read_frame()
         if frame is not None:
-            data = self.get_data(frame)
+            data = self.get_data(frame[::-1, :, :])
             self.image.set_data("RGB", self.image.pitch, data)
             self.dispatch_event("on_frame_ready")
 

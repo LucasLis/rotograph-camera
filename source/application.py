@@ -63,7 +63,7 @@ class Application:
                 self.audio_manager.start_recording()
         else:
             self.interface.saving = True
-            pyglet.clock.schedule_once(self.save, 0.1)
+            pyglet.clock.schedule_once(self.save, 0.2)
 
     def stop_recording(self):
         self.interface.recording = False
@@ -73,7 +73,7 @@ class Application:
             self.audio_manager.stop_recording()
 
         self.interface.saving = True
-        pyglet.clock.schedule_once(self.save, 0.1)
+        pyglet.clock.schedule_once(self.save, 0.2)
 
     def on_mouse_release(self, x, y, button, modifiers):
         x -= self.viewport._viewport[0]
@@ -96,11 +96,14 @@ class Application:
             self.stop_recording()
         elif self.interface.timer:
             if self.interface.timer_running:
-                self.interface.abort_timer()  # TODO: Implement Me!
+                self.interface.abort_timer()
             else:
                 self.interface.start_timer()
         else:
             self.start_recording()
+
+    def on_monochrome_change(self, new_value: bool):
+        self.video_manager.monochrome = new_value
 
     def on_timer_complete(self):
         self.start_recording()

@@ -15,8 +15,7 @@ poetry run python camera.py
 
 ## Todo
 
-- 10 sec timer
-- Monochrome
+- Add sounds to 10 sec timer
 - Output folders
 - Installer
-- Add sounds to 10 sec timer
+- Configure Monochrome
