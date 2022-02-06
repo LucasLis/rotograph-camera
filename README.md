@@ -1,4 +1,4 @@
-# Rotoscope Camera
+# Rotograph Camera
 
 
 ## Installing Dependencies
@@ -18,4 +18,4 @@ poetry run python camera.py
 - Add sounds to 10 sec timer
 - Output folders
 - Installer
-- Configure Monochrome
+- Fix colour glitches in non-monochrome

@@ -1,7 +1,7 @@
 [tool.poetry]
-name = "rotoscope-camera"
+name = "rotograph-camera"
 version = "0.1.0"
-description = "Rotoscope camera written in Python"
+description = "Rotographic camera written in Python"
 authors = ["Lenny Critchley <LennyPhoenixC@gmail.com>"]
 license = "MIT"
 

@@ -108,15 +108,20 @@ class VideoManager(pyglet.event.EventDispatcher):
             print("Failed to read frame, rval was False.")
             return
 
+        frame = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
+        # Saturation
         if self.monochrome:
-            frame = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
-            # Saturation
-            frame[:, :, 1] = frame[:, :, 1] * 0.0  # TODO: Configure me!
-            # Value
-            frame[:, :, 2] = frame[:, :, 2] * 0.4
-            return cv2.cvtColor(frame, cv2.COLOR_HSV2RGB)
+            frame[:, :, 1] = 0
+            blacks = 32
+            whites = 207
+            frame[:, :, 2] = blacks + frame[:, :, 2]/255 * (whites - blacks)
         else:
-            return cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+            frame[:, :, 1] = frame[:, :, 1] * 0.8
+            blacks = 0
+            whites = 207
+            frame[:, :, 2] = blacks + frame[:, :, 2]/255 * (whites - blacks)
+        # Value
+        return cv2.cvtColor(frame, cv2.COLOR_HSV2RGB)
 
     def frame(self, dt: float = None):
         frame = self.read_frame()
@@ -131,7 +136,7 @@ class VideoManager(pyglet.event.EventDispatcher):
     def save(self):
         if self.fps == 0:
             frame = self.read_frame()
-            self.crop_frame(frame).save("frame.jpg")
+            self.crop_frame(frame[::-1, :, :]).save("frame.jpg")
             return
 
         if len(self.frames) == 0:

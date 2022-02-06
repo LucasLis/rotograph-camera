@@ -388,6 +388,7 @@ class Interface(pyglet.event.EventDispatcher):
         return (
             item.x < x < item.x + item.width
             and item.y < y < item.y + item.height
+            and item.visible
         )
 
     def mouse_released(self, x, y):

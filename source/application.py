@@ -20,7 +20,7 @@ class Application:
     def __init__(self):
         self.window = pyglet.window.Window(
             *self.TARGET_RESOLUTION,
-            caption="Rotoscope Camera",
+            caption="Rotograph Camera",
             resizable=True
         )
         self.fps = pyglet.window.FPSDisplay(self.window)
