@@ -10,6 +10,8 @@ import os
 class VideoManager(pyglet.event.EventDispatcher):
     MAX_FPS = 24
 
+    camera_available = False
+
     image: pyglet.image.ImageData
 
     frames = []
@@ -21,12 +23,20 @@ class VideoManager(pyglet.event.EventDispatcher):
     _fps: int
 
     def __init__(self, fps: int, resolution: Tuple[int, int], capture_id=0):
-        self.vc = cv2.VideoCapture(capture_id)
+        self.capture_id = capture_id
+        self.vc = cv2.VideoCapture(self.capture_id)
 
         self.init_image()
 
         self.resolution = resolution
         self.fps = fps
+
+        pyglet.clock.schedule_interval(self.check_camera, 3)
+
+    def check_camera(self, dt: float = None):
+        if not self.vc.isOpened():
+            self.vc = cv2.VideoCapture(self.capture_id)
+            self.init_image()
 
     def init_image(self):
         frame = self.read_frame()
@@ -41,6 +51,7 @@ class VideoManager(pyglet.event.EventDispatcher):
             )
             self.image.anchor_x = self.image.width // 2
             self.image.anchor_y = self.image.height // 2
+            self.camera_available = True
 
     @property
     def fps(self) -> int:
@@ -101,13 +112,14 @@ class VideoManager(pyglet.event.EventDispatcher):
 
     def read_frame(self) -> None | np.ndarray:
         if not self.vc.isOpened():
-            print("Failed to read frame, video capture is not open.")
             return
 
         rval, frame = self.vc.read()
         if not rval:
-            print("Failed to read frame, rval was False.")
+            self.vc.release()
             return
+
+        self.camera_available = True
 
         frame = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
         # Saturation
@@ -133,6 +145,8 @@ class VideoManager(pyglet.event.EventDispatcher):
 
             if self.recording:
                 self.frames.append(frame)
+        else:
+            self.dispatch_event("on_frame_failed")
 
     def save(self, output_path: str, datestring: Optional[str] = None):
         if self.fps == 0:
@@ -166,3 +180,4 @@ class VideoManager(pyglet.event.EventDispatcher):
 
 
 VideoManager.register_event_type("on_frame_ready")
+VideoManager.register_event_type("on_frame_failed")

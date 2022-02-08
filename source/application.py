@@ -23,6 +23,7 @@ class Application:
     TARGET_RESOLUTION = Vec2(640, 360)
     CONFIG_FOLDER = os.path.join(os.environ["HOME"], ".config", "rotograph")
     CONFIG_FILE = os.path.join(CONFIG_FOLDER, "config.json")
+    EMPTY_IMAGE = pyglet.image.ImageData(1, 1, "RGBA", b"\x00\x00\x00\x00")
 
     storage_device_available = property(
         lambda self: self.get_mount_path() != ""
@@ -64,7 +65,7 @@ class Application:
         self.audio_manager = AudioManager()
 
         self.preview_sprite = pyglet.sprite.Sprite(
-            self.video_manager.image,
+            self.EMPTY_IMAGE,
             self.TARGET_RESOLUTION.x // 2, self.TARGET_RESOLUTION.y // 2,
             group=OrderedGroup(Layers.PREVIEW),
             batch=self.batch,
@@ -245,6 +246,11 @@ class Application:
 
     def on_frame_ready(self):
         self.preview_sprite.image = self.video_manager.image
+        self.interface.camera_message = False
+
+    def on_frame_failed(self):
+        self.preview_sprite.image = self.EMPTY_IMAGE
+        self.interface.camera_message = True
 
     def run(self):
         pyglet.app.run()

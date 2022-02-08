@@ -16,6 +16,6 @@ poetry run python camera.py
 ## Todo
 
 - Fix audio weirdness
-- Error handling
 - Installer
 - Fix colour glitches in non-monochrome
+- Look into camera time out
