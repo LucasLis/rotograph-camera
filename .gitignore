@@ -153,6 +153,4 @@ cython_debug/
 #.idea/
 
 ### Output ###
-frames.gif
-frame.jpg
-audio.wav
+output/

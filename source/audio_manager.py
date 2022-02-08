@@ -1,5 +1,7 @@
 import pyaudio
 import pyglet
+
+import os
 import wave
 
 
@@ -8,7 +10,6 @@ class AudioManager:
     SAMPLE_FORMAT = pyaudio.paInt16  # 16 bits per sample
     CHANNELS = 2
     FS = 44100  # Record at 44100 samples per second
-    FILENAME = "audio.wav"
 
     recording = False
     frames = []
@@ -27,7 +28,7 @@ class AudioManager:
             format=self.SAMPLE_FORMAT,
             channels=self.CHANNELS,
             rate=self.FS,
-            frames_per_buffer=self.CHUNK_SIZE,
+            frames_per_buffer=self.CHUNK_SIZE*2,
             input=True
         )
         self.recording = True
@@ -49,18 +50,21 @@ class AudioManager:
         self.stream.stop_stream()
         self.stream.close()
 
-    def save(self):
+    def save(self, output_path: str):
         if len(self.frames) == 0:
             print("No audio to save!")
             return
 
         # Save the recorded data as a WAV file
-        wf = wave.open(self.FILENAME, 'wb')
+        path = os.path.join(output_path, "audio.wav")
+        wf = wave.open(path, "wb")
         wf.setnchannels(self.CHANNELS)
         wf.setsampwidth(self.pyaudio.get_sample_size(self.SAMPLE_FORMAT))
         wf.setframerate(self.FS)
-        wf.writeframes(b''.join(self.frames))
+        wf.writeframes(b"".join(self.frames))
         wf.close()
+
+        self.frames = []
 
     def __del__(self):
         self.pyaudio.terminate()

@@ -15,6 +15,7 @@ poetry run python camera.py
 
 ## Todo
 
-- Output folders
+- Fix audio weirdness
+- Error handling
 - Installer
 - Fix colour glitches in non-monochrome

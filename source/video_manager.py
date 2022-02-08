@@ -3,7 +3,8 @@ import numpy as np
 from PIL import Image
 import pyglet
 
-from typing import Tuple
+from typing import Tuple, Optional
+import os
 
 
 class VideoManager(pyglet.event.EventDispatcher):
@@ -121,22 +122,23 @@ class VideoManager(pyglet.event.EventDispatcher):
             whites = 207
             frame[:, :, 2] = blacks + frame[:, :, 2]/255 * (whites - blacks)
         # Value
-        return cv2.cvtColor(frame, cv2.COLOR_HSV2RGB)
+        return cv2.cvtColor(frame, cv2.COLOR_HSV2RGB)[::-1, :, :]
 
     def frame(self, dt: float = None):
         frame = self.read_frame()
         if frame is not None:
-            data = self.get_data(frame[::-1, :, :])
+            data = self.get_data(frame)
             self.image.set_data("RGB", self.image.pitch, data)
             self.dispatch_event("on_frame_ready")
 
             if self.recording:
                 self.frames.append(frame)
 
-    def save(self):
+    def save(self, output_path: str, datestring: Optional[str] = None):
         if self.fps == 0:
             frame = self.read_frame()
-            self.crop_frame(frame[::-1, :, :]).save("frame.jpg")
+            path = os.path.join(output_path, "frame-" + datestring + ".jpg")
+            self.crop_frame(frame).save(path)
             return
 
         if len(self.frames) == 0:
@@ -148,14 +150,16 @@ class VideoManager(pyglet.event.EventDispatcher):
             self.frames
         ))
 
+        path = os.path.join(output_path, "frames.gif")
         frames[0].save(
-            "frames.gif",
+            path,
             save_all=True,
             append_images=frames[1:],
             optimize=True,
             interlace=False,
             duration=1000/self.fps,
         )
+        self.frames = []
 
     def __del__(self):
         self.vc.release()
