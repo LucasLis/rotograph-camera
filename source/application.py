@@ -213,9 +213,8 @@ class Application:
         self.interface.mouse_released(x, y)
 
     def on_key_press(self, symbol, modifiers):
-        match symbol:
-            case key.F11:
-                self.window.set_fullscreen(not self.window.fullscreen)
+        if symbol == key.F11:
+            self.window.set_fullscreen(not self.window.fullscreen)
 
     def on_fps_change(self, new_fps):
         self.video_manager.fps = new_fps
