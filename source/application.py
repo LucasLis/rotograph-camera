@@ -76,6 +76,12 @@ class Application:
             self.TARGET_RESOLUTION
         )
         self.interface.push_handlers(self)
+        self.check_storage()
+
+        pyglet.clock.schedule_interval_soft(self.check_storage, 1)
+
+    def check_storage(self, dt: float = None):
+        self.interface.storage_message = not self.storage_device_available
 
     def get_mount_path(self, uuid: Optional[str] = None) -> str:
         if uuid is None:

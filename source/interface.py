@@ -18,6 +18,7 @@ class Interface(pyglet.event.EventDispatcher):
     _crosshair = False
     _recording = False
     _saving = False
+    _storage_message = False
     _about = False
     _settings = False
     _fps = 0
@@ -124,6 +125,16 @@ class Interface(pyglet.event.EventDispatcher):
             group=OrderedGroup(Layers.BUTTONS)
         )
         self.about_button.scale = 2
+
+        self.storage_message_text = pyglet.sprite.Sprite(
+            pyglet.resource.image("assets/No Storage Found.png"),
+            self.target_resolution.x//2 - 128,
+            self.target_resolution.y-24,
+            batch=self.batch,
+            group=OrderedGroup(Layers.BUTTONS)
+        )
+        self.storage_message_text.scale = 2
+        self.storage_message_text.visible = self.storage_message
 
     def init_about_window(self):
         self.about_window = pyglet.sprite.Sprite(
@@ -366,6 +377,15 @@ class Interface(pyglet.event.EventDispatcher):
     def saving(self, value: bool):
         self._saving = value
         self.saving_text.visible = value
+
+    @property
+    def storage_message(self) -> bool:
+        return self._storage_message
+
+    @storage_message.setter
+    def storage_message(self, value: bool):
+        self._storage_message = value
+        self.storage_message_text.visible = value
 
     def start_timer(self):
         self.timer_running = True
