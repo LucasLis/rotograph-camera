@@ -15,6 +15,7 @@ else
 	mkdir -p $HOME/.local/share/rotograph
 	cp -r ./rotograph $HOME/.local/share/
 	echo "Rotograph installed"
+	mkdir -p $HOME/.local/bin
 	ln -s $HOME/.local/share/rotograph/rotograph $HOME/.local/bin/rotograph
 	echo "[Desktop Entry]" > $HOME/.local/share/applications/Rotograph.desktop
 	echo "Encoding=UTF-8" >> $HOME/.local/share/applications/Rotograph.desktop
