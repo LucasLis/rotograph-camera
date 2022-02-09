@@ -54,7 +54,6 @@ class Application:
         )
         self.window.set_minimum_size(*self.TARGET_RESOLUTION)
         self.window.set_icon(pyglet.resource.image("assets/Icon.png"))
-        self.fps = pyglet.window.FPSDisplay(self.window)
         self.window.push_handlers(self)
 
         self.viewport = FixedResolution(self.window, *self.TARGET_RESOLUTION)
@@ -242,7 +241,6 @@ class Application:
         self.window.clear()
         with self.viewport:
             self.batch.draw()
-        self.fps.draw()
 
     def on_frame_ready(self):
         self.preview_sprite.image = self.video_manager.image
