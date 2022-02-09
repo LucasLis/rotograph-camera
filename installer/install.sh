@@ -14,6 +14,7 @@ else
 	echo "Installing Rotograph"
 	mkdir -p $HOME/.local/share/rotograph
 	cp -r ./rotograph $HOME/.local/share/
+	chmod u+x $HOME/.local/share/rotograph/rotograph
 	echo "Rotograph installed"
 	mkdir -p $HOME/.local/bin
 	ln -s $HOME/.local/share/rotograph/rotograph $HOME/.local/bin/rotograph
