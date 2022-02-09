@@ -52,8 +52,9 @@ class Application:
             caption="Rotograph Camera",
             resizable=True
         )
-        self.fps = pyglet.window.FPSDisplay(self.window)
         self.window.set_minimum_size(*self.TARGET_RESOLUTION)
+        self.window.set_icon(pyglet.resource.image("assets/Icon.png"))
+        self.fps = pyglet.window.FPSDisplay(self.window)
         self.window.push_handlers(self)
 
         self.viewport = FixedResolution(self.window, *self.TARGET_RESOLUTION)

@@ -17,4 +17,3 @@ poetry run python camera.py
 
 - Fix colour glitches in non-monochrome
 - Look into camera time out
-- Fix desktop files :P

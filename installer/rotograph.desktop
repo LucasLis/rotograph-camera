@@ -1,8 +1,0 @@
-[Desktop Entry]
-Encoding=UTF-8
-Version=1.0rc1
-Type=Application
-Terminal=false
-Exec=.local/share/rotograph/rotograph
-Name=Rotograph Camera
-Icon=.local/share/rotograph/assets/Icon.png

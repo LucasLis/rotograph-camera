@@ -16,6 +16,15 @@ else
 	cp -r ./rotograph $HOME/.local/share/
 	echo "Rotograph installed"
 	ln -s $HOME/.local/share/rotograph/rotograph $HOME/.local/bin/rotograph
-	cp ./desktop/rotograph.desktop $HOME/.local/share/applications/
+	echo "[Desktop Entry]" > $HOME/.local/share/applications/rotograph.desktop
+	echo "Encoding=UTF-8" >> $HOME/.local/share/applications/rotograph.desktop
+	echo "Version=1.0rc1" >> $HOME/.local/share/applications/rotograph.desktop
+	echo "Type=Application" >> $HOME/.local/share/applications/rotograph.desktop
+	echo "Terminal=false" >> $HOME/.local/share/applications/rotograph.desktop
+	echo "Exec=$HOME/.local/bin/rotograph" >> $HOME/.local/share/applications/rotograph.desktop
+	echo "Name=Rotograph" >> $HOME/.local/share/applications/rotograph.desktop
+	echo "Icon=$HOME/.local/share/rotograph/assets/Icon.png" >> $HOME/.local/share/applications/rotograph.desktop
+	echo "Categories=Graphics;" >> $HOME/.local/share/applications/rotograph.desktop
+	echo "Comment=A simple rotograph camera written in Python" >> $HOME/.local/share/applications/rotograph.desktop
 	$HOME/.local/bin/rotograph
 fi

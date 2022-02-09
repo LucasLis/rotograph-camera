@@ -2,9 +2,8 @@
 
 pip install pyinstaller
 
+rm -rf dist
 pyinstaller rotograph.py
 
 cp installer/install.sh dist/
-mkdir dist/desktop
-cp installer/rotograph.desktop dist/desktop/
 cp -r assets dist/rotograph/
