@@ -449,35 +449,33 @@ class Interface(pyglet.event.EventDispatcher):
         )
 
     def mouse_released(self, x, y):
-        if not self.camera_message:
-            if self.check_click(x, y, self.rec_button):
-                self.dispatch_event("on_rec_pressed")
-        else:
-            if self.check_click(x, y, self.settings_quit_sprite):
-                self.settings = False
-            elif self.check_click(x, y, self.settings_grid_toggle):
-                self.grid = not self.grid
-            elif self.check_click(x, y, self.settings_centre_toggle):
-                self.crosshair = not self.crosshair
-            elif self.check_click(x, y, self.settings_timer_toggle):
-                self.timer = not self.timer
-            elif self.check_click(x, y, self.settings_monochrome_toggle):
-                self.monochrome = not self.monochrome
-                self.dispatch_event("on_monochrome_change", self.monochrome)
-            elif self.check_click(x, y, self.settings_fps_more):
-                self.dispatch_event("on_fps_change", self.fps + 1)
-            elif self.check_click(x, y, self.settings_fps_less):
-                self.dispatch_event("on_fps_change", self.fps - 1)
-            elif self.check_click(x, y, self.settings_mute_toggle):
-                self.mute = not self.mute
-            elif self.check_click(x, y, self.settings_quit_sprite):
-                self.settings = False
-            elif self.check_click(x, y, self.settings_button):
-                self.settings = not self.settings
-            elif self.check_click(x, y, self.about_button):
-                self.about = not self.about
-            elif self.check_click(x, y, self.about_quit_sprite):
-                self.about = False
+        if self.check_click(x, y, self.rec_button) and not self.camera_message:
+            self.dispatch_event("on_rec_pressed")
+        elif self.check_click(x, y, self.settings_quit_sprite):
+            self.settings = False
+        elif self.check_click(x, y, self.settings_grid_toggle):
+            self.grid = not self.grid
+        elif self.check_click(x, y, self.settings_centre_toggle):
+            self.crosshair = not self.crosshair
+        elif self.check_click(x, y, self.settings_timer_toggle):
+            self.timer = not self.timer
+        elif self.check_click(x, y, self.settings_monochrome_toggle):
+            self.monochrome = not self.monochrome
+            self.dispatch_event("on_monochrome_change", self.monochrome)
+        elif self.check_click(x, y, self.settings_fps_more):
+            self.dispatch_event("on_fps_change", self.fps + 1)
+        elif self.check_click(x, y, self.settings_fps_less):
+            self.dispatch_event("on_fps_change", self.fps - 1)
+        elif self.check_click(x, y, self.settings_mute_toggle):
+            self.mute = not self.mute
+        elif self.check_click(x, y, self.settings_quit_sprite):
+            self.settings = False
+        elif self.check_click(x, y, self.settings_button):
+            self.settings = not self.settings
+        elif self.check_click(x, y, self.about_button):
+            self.about = not self.about
+        elif self.check_click(x, y, self.about_quit_sprite):
+            self.about = False
 
 
 Interface.register_event_type("on_fps_change")
