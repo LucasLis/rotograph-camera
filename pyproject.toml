@@ -2,7 +2,7 @@
 name = "rotograph-camera"
 version = "1.0.1"
 description = "Rotographic camera written in Python"
-authors = ["Lenny Critchley <LennyPhoenixC@gmail.com>"]
+authors = ["Lucas Lis <lucasliscontact@gmail.com>"]
 license = "MIT"
 
 [tool.poetry.dependencies]
