@@ -15,6 +15,11 @@ if [ -d "$HOME/.local/share/rotograph" ] ; then
 	if [ "$answer" == "y" ] ; then
 		remove
 		echo "Rotograph removed"
+		read -p "Delete configuration files? (y/n) " answer
+		if [ "$answer" == "y" ] ; then
+			rm -rf $HOME/.local/share/rotograph
+			echo "Configuration files removed"
+		fi
 	else
 		echo "Aborting"
 	fi
