@@ -1,15 +1,19 @@
 #!/usr/bin/bash
 
+echo "Note: If you are on debian (such as on a Raspberry Pi) you will need to install the following packages:"
+echo "sudo apt-get install python3-opengl"
+
+read -p "Press enter to continue"
+
 function remove {
 	rm -rf $HOME/.local/share/rotograph $HOME/.local/bin/rotograph $HOME/.local/share/applications/Rotograph.desktop $HOME/Desktop/Rotograph.desktop
 }
 
 if [ -d "$HOME/.local/share/rotograph" ] ; then
 	echo "Rotograph is already installed"
-	echo "Would you like to remove it? (y/n)"
-	read answer
+	read -p "Would you like to remove it? (y/n) " answer
 	if [ "$answer" == "y" ] ; then
-		remove()
+		remove
 		echo "Rotograph removed"
 	else
 		echo "Aborting"
@@ -23,7 +27,7 @@ else
 		echo "Copied rotograph to ~/.local/share/rotograph"
 	else
 		echo "Failed to copy rotograph to ~/.local/share/rotograph"
-		remove()
+		remove
 		exit 1
 	fi
 	# Make executable
@@ -32,7 +36,7 @@ else
 		echo "Made rotograph executable"
 	else
 		echo "Failed to make rotograph executable"
-		remove()
+		remove
 		exit 1
 	fi
 	# Link to bin folder
@@ -42,7 +46,7 @@ else
 		echo "Linked rotograph to ~/.local/bin/rotograph"
 	else
 		echo "Failed to link rotograph to ~/.local/bin/rotograph"
-		remove()
+		remove
 		exit 1
 	fi
 	# Create desktop file
@@ -66,6 +70,7 @@ else
 		echo "Desktop folder not found"
 	fi
 	echo "Rotograph installed"
+	read -p "Press enter to continue"
 	# Launch rotograph for first-time setup
 	echo "Launching Rotograph for first-time setup"
 	$HOME/.local/bin/rotograph

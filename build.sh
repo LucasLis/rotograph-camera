@@ -1,7 +1,5 @@
 #!/usr/bin/bash
 
-pip install pyinstaller
-
 rm -rf dist
 pyinstaller rotograph.py
 
