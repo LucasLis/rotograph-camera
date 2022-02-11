@@ -17,7 +17,7 @@ if [ -d "$HOME/.local/share/rotograph" ] ; then
 		echo "Rotograph removed"
 		read -p "Delete configuration files? (y/n) " answer
 		if [ "$answer" == "y" ] ; then
-			rm -rf $HOME/.local/share/rotograph
+			rm -rf $HOME/.config/rotograph
 			echo "Configuration files removed"
 		fi
 	else
