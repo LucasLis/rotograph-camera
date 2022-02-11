@@ -110,7 +110,7 @@ class VideoManager(pyglet.event.EventDispatcher):
         # Crop the center of the image
         return pil_image.crop((left, top, right, bottom))
 
-    def read_frame(self) -> None | np.ndarray:
+    def read_frame(self) -> Optional[np.ndarray]:
         if not self.vc.isOpened():
             return
 

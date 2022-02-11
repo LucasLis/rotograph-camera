@@ -6,15 +6,15 @@ authors = ["Lucas Lis <lucasliscontact@gmail.com>"]
 license = "MIT"
 
 [tool.poetry.dependencies]
-python = "^3.9"
-pyglet = "^1.5.21"
-numpy = "^1.22.1"
-opencv-python = "^4.5.5"
+python = ">=3.7,<3.11"
 PyAudio = "^0.2.11"
 Pillow = "^9.0.1"
+pyglet = "^1.5.21"
+numpy = "^1.21"
+opencv-python = "4.5.4.60"
 
 [tool.poetry.dev-dependencies]
-poetry = "^1.1.9"
+pyinstaller = "^4.9"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
