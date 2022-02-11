@@ -2,9 +2,12 @@
 
 ## Installing
 
-- Head to [releases](https://github.com/LucasLis/rotograph-camera/releases) and download the [latest zip file](https://github.com/LucasLis/rotograph-camera/releases/download/v1.0.0/rotograph-camera-1.0.zip).
-- Extract the folder, you may need to adjust the permissions of the installer: `chmod u+x install.sh`
-- Run the installer: `./install.sh`
+- Head to [releases](https://github.com/LucasLis/rotograph-camera/releases) and download the latest zip file for your device.
+- Extract the folder.
+- On Debian based systems:
+  - Install the following package using apt:
+  - `python3-opengl` (`sudo apt install python3-opengl`)
+- Run the installer: `bash install.sh`
 - Follow the instructions.
 
 ## Development
