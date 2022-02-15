@@ -26,6 +26,5 @@ poetry run python camera.py
 
 ## Todo
 
-- Fix camera error system
 - Fix camera colour adjustments
 - Look into camera time out
