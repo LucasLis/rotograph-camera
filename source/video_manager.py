@@ -3,7 +3,6 @@ from pygame import camera
 from pygame import image
 from PIL import Image
 import pyglet
-import numpy as np
 
 from typing import Tuple, Optional, List
 import os
@@ -142,11 +141,6 @@ class VideoManager(pyglet.event.EventDispatcher):
         if len(self.frames) == 0:
             print("No frames to save.")
             return
-
-        #frames = list(map(
-        #    lambda frame: self.crop_frame(*frame),
-        #    self.frames
-        #))
 
         path = os.path.join(output_path, "frames.gif")
         self.frames[0].save(

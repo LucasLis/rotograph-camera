@@ -11,7 +11,6 @@ Pillow = "^9.0.1"
 pyglet = "^1.5.21"
 pygame = "^2.1.2"
 PyAudio = "^0.2.11"
-numpy = "1.21.5"
 
 [tool.poetry.dev-dependencies]
 pyinstaller = "^4.9"

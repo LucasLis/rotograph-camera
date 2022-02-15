@@ -1,6 +1,5 @@
 import pyaudio
 import pyglet
-import numpy as np
 
 import os
 import wave
