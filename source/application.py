@@ -191,7 +191,7 @@ class Application:
                 self.audio_manager.start_recording()
         else:
             self.interface.saving = True
-            pyglet.clock.schedule_once(self.save, 0.2)
+            pyglet.clock.schedule_once(self.save, 0.1)
 
     def stop_recording(self):
         self.interface.recording = False
@@ -247,10 +247,10 @@ class Application:
 
     def on_frame_ready(self):
         self.preview_sprite.image = self.video_manager.image
-        self.interface.camera_message = False
+        if self.interface.camera_message:
+            self.interface.camera_message = False
 
-    def on_frame_failed(self):
-        self.preview_sprite.image = self.EMPTY_IMAGE
+    def on_camera_unavailable(self):
         self.interface.camera_message = True
 
     def run(self):
