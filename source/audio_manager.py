@@ -17,34 +17,32 @@ class AudioManager:
     def __init__(self):
         self.pyaudio = pyaudio.PyAudio()  # Create an interface to PortAudio
 
-        self.stream = self.pyaudio.open(
-            format=self.SAMPLE_FORMAT,
-            channels=self.CHANNELS,
-            rate=self.FS,
-            frames_per_buffer=self.CHUNK_SIZE,
-            input=True
-        )
-
-        pyglet.clock.schedule_interval(self.frame, self.CHUNK_SIZE/self.FS)
+        pyglet.clock.schedule(self.frame)
 
     def start_recording(self):
         if self.recording:
             print("Already recording!")
             return
 
+        self.stream = self.pyaudio.open(
+            format=self.SAMPLE_FORMAT,
+            channels=self.CHANNELS,
+            rate=self.FS,
+            input=True
+        )
         self.recording = True
         self.frames = []
 
-    def frame(self, dt: float = None):
+    def frame(self, dt: float):
         if self.recording:
-            data = self.stream.read(self.CHUNK_SIZE)
+            data = self.stream.read(int(dt*self.FS)+1)
             self.frames.append(data)
 
     def stop_recording(self):
         if not self.recording:
             print("Not currently recording.")
             return
-        self.frame()
+        self.stream.stop_stream()
         self.recording = False
 
     def save(self, output_path: str):
@@ -64,6 +62,5 @@ class AudioManager:
         self.frames = []
 
     def __del__(self):
-        self.stream.stop_stream()
         self.stream.close()
         self.pyaudio.terminate()
