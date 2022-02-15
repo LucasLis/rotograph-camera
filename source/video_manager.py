@@ -1,20 +1,22 @@
-import cv2
-import numpy as np
+import pygame
+from pygame import camera
+from pygame import image
 from PIL import Image
 import pyglet
 
-from typing import Tuple, Optional
+from typing import Tuple, Optional, List
 import os
 
 
 class VideoManager(pyglet.event.EventDispatcher):
     MAX_FPS = 24
+    FORMAT = "RGB"
 
     camera_available = False
 
     image: pyglet.image.ImageData
 
-    frames = []
+    frames: List[pygame.Surface] = []
     frame_count = -1
     recording = False
 
@@ -23,35 +25,20 @@ class VideoManager(pyglet.event.EventDispatcher):
     _fps: int
 
     def __init__(self, fps: int, resolution: Tuple[int, int], capture_id=0):
-        self.capture_id = capture_id
-        self.vc = cv2.VideoCapture(self.capture_id)
-
-        self.init_image()
+        camera.init()
 
         self.resolution = resolution
         self.fps = fps
 
-        pyglet.clock.schedule_interval(self.check_camera, 3)
+        self.capture_id = capture_id
+        cameras = camera.list_cameras()
+        self.camera = camera.Camera(
+            cameras[capture_id],
+            self.resolution
+        )
+        self.camera.start()
 
-    def check_camera(self, dt: float = None):
-        if not self.vc.isOpened():
-            self.vc = cv2.VideoCapture(self.capture_id)
-            self.init_image()
-
-    def init_image(self):
-        frame = self.read_frame()
-        if frame is not None:
-            size = self.get_size(frame)
-            data = self.get_data(frame)
-            self.image = pyglet.image.ImageData(
-                size[0],
-                size[1],
-                "RGB",
-                data
-            )
-            self.image.anchor_x = self.image.width // 2
-            self.image.anchor_y = self.image.height // 2
-            self.camera_available = True
+        self.surface = pygame.Surface(self.camera.get_size())
 
     @property
     def fps(self) -> int:
@@ -91,15 +78,9 @@ class VideoManager(pyglet.event.EventDispatcher):
 
         self.recording = False
 
-    def get_size(self, frame: np.ndarray) -> Tuple[int, int]:
-        shape = frame.shape
-        return (shape[1], shape[0])
-
-    def get_data(self, frame: np.ndarray) -> str:
-        return frame.flatten().tostring()
-
-    def crop_frame(self, frame: np.ndarray) -> Image:
-        pil_image = Image.fromarray(frame[::-1, :, :])
+    def crop_frame(self, surface: pygame.Surface) -> Image:
+        data = image.tostring(surface, "RGB")
+        pil_image = Image.frombytes("RGB", surface.get_size(), data)
         width, height = pil_image.size
 
         left = (width - self.resolution[0])//2
@@ -110,49 +91,26 @@ class VideoManager(pyglet.event.EventDispatcher):
         # Crop the center of the image
         return pil_image.crop((left, top, right, bottom))
 
-    def read_frame(self) -> Optional[np.ndarray]:
-        if not self.vc.isOpened():
-            return
-
-        rval, frame = self.vc.read()
-        if not rval:
-            self.vc.release()
-            return
-
-        self.camera_available = True
-
-        frame = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
-        # Saturation
-        if self.monochrome:
-            frame[:, :, 1] = 0
-            blacks = 32
-            whites = 207
-            frame[:, :, 2] = blacks + frame[:, :, 2]/255 * (whites - blacks)
-        else:
-            frame[:, :, 1] = frame[:, :, 1] * 0.8
-            blacks = 0
-            whites = 207
-            frame[:, :, 2] = blacks + frame[:, :, 2]/255 * (whites - blacks)
-        # Value
-        return cv2.cvtColor(frame, cv2.COLOR_HSV2RGB)[::-1, :, :]
-
     def frame(self, dt: float = None):
-        frame = self.read_frame()
-        if frame is not None:
-            data = self.get_data(frame)
-            self.image.set_data("RGB", self.image.pitch, data)
-            self.dispatch_event("on_frame_ready")
+        self.surface = self.camera.get_image()
+        data = image.tostring(self.surface, self.FORMAT, True)
+        self.image = pyglet.image.ImageData(
+            *self.camera.get_size(),
+            self.FORMAT,
+            data
+        )
+        self.image.anchor_x = self.image.width // 2
+        self.image.anchor_y = self.image.height // 2
+        self.dispatch_event("on_frame_ready")
 
-            if self.recording:
-                self.frames.append(frame)
-        else:
-            self.dispatch_event("on_frame_failed")
+        if self.recording:
+            self.frames.append(self.surface)
 
     def save(self, output_path: str, datestring: Optional[str] = None):
         if self.fps == 0:
-            frame = self.read_frame()
+            self.camera.get_image(self.surface)
             path = os.path.join(output_path, "frame-" + datestring + ".jpg")
-            self.crop_frame(frame).save(path)
+            self.crop_frame(self.surface).save(path)
             return
 
         if len(self.frames) == 0:
@@ -176,7 +134,7 @@ class VideoManager(pyglet.event.EventDispatcher):
         self.frames = []
 
     def __del__(self):
-        self.vc.release()
+        self.camera.stop()
 
 
 VideoManager.register_event_type("on_frame_ready")

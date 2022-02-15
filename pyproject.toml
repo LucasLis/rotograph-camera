@@ -7,11 +7,10 @@ license = "MIT"
 
 [tool.poetry.dependencies]
 python = ">=3.7,<3.11"
-PyAudio = "^0.2.11"
 Pillow = "^9.0.1"
 pyglet = "^1.5.21"
-numpy = "^1.21"
-opencv-python = "4.5.4.60"
+pygame = "^2.1.2"
+PyAudio = "^0.2.11"
 
 [tool.poetry.dev-dependencies]
 pyinstaller = "^4.9"

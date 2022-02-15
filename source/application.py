@@ -50,11 +50,13 @@ class Application:
         self.window = pyglet.window.Window(
             *self.TARGET_RESOLUTION,
             caption="Rotograph Camera",
-            resizable=True
+            resizable=True,
+            vsync=True,
         )
         self.window.set_minimum_size(*self.TARGET_RESOLUTION)
         self.window.set_icon(pyglet.resource.image("assets/Icon.png"))
         self.window.push_handlers(self)
+        self.fps = pyglet.window.FPSDisplay(self.window)
 
         self.viewport = FixedResolution(self.window, *self.TARGET_RESOLUTION)
         self.batch = pyglet.graphics.Batch()
@@ -241,6 +243,7 @@ class Application:
         self.window.clear()
         with self.viewport:
             self.batch.draw()
+        self.fps.draw()
 
     def on_frame_ready(self):
         self.preview_sprite.image = self.video_manager.image
