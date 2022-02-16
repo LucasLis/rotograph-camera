@@ -22,14 +22,14 @@ jobs:
             dist
   Build-Arm:
     runs-on: ubuntu-18.04
+    name: Build on Raspbian Lite ARM
     steps:
       - uses: actions/checkout@v2.1.0
       - uses: pguyot/arm-runner-action@v2
         with:
           copy_artifact_path: dist
           commands: |
-              sudo apt install portaudio19-dev
-              sudo apt install python3-pip
+              sudo apt-get install -y portaudio19-dev python3-pip
               python -m pip install poetry
               poetry install
               poetry run bash build.sh
