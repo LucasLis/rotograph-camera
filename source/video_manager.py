@@ -17,7 +17,7 @@ class VideoManager(pyglet.event.EventDispatcher):
 
     image: pyglet.image.ImageData
 
-    frames: List[Tuple[str, Tuple[int, int]]] = []
+    frames: List[Image.Image] = []
     frame_count = -1
     recording = False
 
