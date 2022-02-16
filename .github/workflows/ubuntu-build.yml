@@ -31,10 +31,7 @@ jobs:
           commands: |
               sudo apt-get update && sudo apt-get upgrade -y
               sudo apt-get install -y portaudio19-dev python3-pip
-              python3 -m pip install poetry
-              poetry config experimental.new-installer false
-              poetry cache clear --all pypi
-              poetry cache clear --all private
+              curl -sSL https://install.python-poetry.org | python3 -
               poetry install
               poetry run bash build.sh
       - name: Upload Artifacts
