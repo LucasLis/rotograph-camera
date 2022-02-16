@@ -1,7 +1,7 @@
 import pygame
 from pygame import camera
 from pygame import image
-from PIL import Image
+from PIL import Image, ImageEnhance
 import pyglet
 
 from typing import Tuple, Optional, List
@@ -98,9 +98,8 @@ class VideoManager(pyglet.event.EventDispatcher):
 
         self.recording = False
 
-    def crop_frame(self, data: str, size: Tuple[int, int]) -> Image:
-        pil_image = Image.frombytes("RGB", size, data)
-        width, height = pil_image.size
+    def crop_frame(self, image: Image.Image) -> Image.Image:
+        width, height = image.size
 
         left = (width - self.resolution[0])//2
         top = (height - self.resolution[1])//2
@@ -108,34 +107,42 @@ class VideoManager(pyglet.event.EventDispatcher):
         bottom = (height + self.resolution[1])//2
 
         # Crop the center of the image
-        return pil_image.crop((left, top, right, bottom))
+        return image.crop((left, top, right, bottom))
+
+    def get_image(self) -> Image.Image:
+        self.surface = self.camera.get_image()
+        data = image.tostring(self.surface, self.FORMAT)
+        pil_image = Image.frombytes("RGB", self.surface.get_size(), data)
+        # Saturation
+        pil_image = ImageEnhance.Color(pil_image)
+        pil_image = pil_image.enhance(0 if self.monochrome else 0.8)
+        # Contrast
+        pil_image = ImageEnhance.Contrast(pil_image).enhance(0.8)
+        return pil_image
 
     def frame(self, dt: float = None):
         if self.camera_available:
-            self.surface = self.camera.get_image()
-            data = image.tostring(self.surface, self.FORMAT, True)
+            pil_image = self.get_image()
+            data = pil_image.tobytes()
+
             self.image = pyglet.image.ImageData(
                 *self.camera.get_size(),
                 self.FORMAT,
-                data
+                data,
+                pitch=-pil_image.width*len(self.FORMAT)
             )
             self.image.anchor_x = self.image.width // 2
             self.image.anchor_y = self.image.height // 2
             self.dispatch_event("on_frame_ready")
 
             if self.recording:
-                data = image.tostring(self.surface, self.FORMAT)
-                self.frames.append(self.crop_frame(
-                    data,
-                    self.surface.get_size()
-                ))
+                self.frames.append(self.crop_frame(pil_image))
 
     def save(self, output_path: str, datestring: Optional[str] = None):
         if self.fps == 0:
-            self.surface = self.camera.get_image()
-            data = image.tostring(self.surface, self.FORMAT)
+            pil_image = self.get_image()
             path = os.path.join(output_path, "frame-" + datestring + ".jpg")
-            self.crop_frame(data, self.surface.get_size()).save(path)
+            self.crop_frame(pil_image).save(path)
             return
 
         if len(self.frames) == 0:
