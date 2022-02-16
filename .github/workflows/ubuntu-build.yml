@@ -29,6 +29,7 @@ jobs:
         with:
           copy_artifact_path: dist
           commands: |
+              sudo apt-get update && sudo apt-get upgrade -y
               sudo apt-get install -y portaudio19-dev python3-pip
               python -m pip install poetry
               poetry install
