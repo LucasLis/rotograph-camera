@@ -30,11 +30,12 @@ jobs:
           copy_artifact_path: dist
           commands: |
               sudo apt-get update && sudo apt-get upgrade -y
-              sudo apt-get install -y portaudio19-dev python3-pip python3-venv
+              sudo apt-get install -y portaudio19-dev python3 python3-pip python3-venv
               curl -sSL https://install.python-poetry.org | python3 -
               export PATH="/home/runner/.local/bin:$PATH"
-              poetry install
-              poetry run bash build.sh
+              poetry export --dev -f requirements.txt --output requirements.txt
+              python -m pip install -Ur requirements.txt
+              bash build.sh
       - name: Upload Artifacts
         uses: actions/upload-artifact@v2
         with:
