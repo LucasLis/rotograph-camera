@@ -56,10 +56,14 @@ class Application:
         self.window.set_minimum_size(*self.TARGET_RESOLUTION)
         self.window.set_icon(pyglet.resource.image("assets/Icon.png"))
         self.window.push_handlers(self)
-        self.fps = pyglet.window.FPSDisplay(self.window)
 
         self.viewport = FixedResolution(self.window, *self.TARGET_RESOLUTION)
         self.batch = pyglet.graphics.Batch()
+
+        self.fps = pyglet.window.FPSDisplay(self.window)
+        self.fps.label.batch = self.batch
+        self.fps.label.group = Layers.MAIN_UI
+        self.fps.label.visible = False
 
         self.video_manager = VideoManager(24, self.TARGET_RESOLUTION)
         self.video_manager.push_handlers(self)
@@ -217,6 +221,8 @@ class Application:
     def on_key_press(self, symbol, modifiers):
         if symbol == key.F11:
             self.window.set_fullscreen(not self.window.fullscreen)
+        elif symbol == key.F3:
+            self.fps.label.visible = not self.fps.label.visible
 
     def on_fps_change(self, new_fps):
         self.video_manager.fps = new_fps
@@ -243,7 +249,6 @@ class Application:
         self.window.clear()
         with self.viewport:
             self.batch.draw()
-        self.fps.draw()
 
     def on_frame_ready(self):
         self.preview_sprite.image = self.video_manager.image
