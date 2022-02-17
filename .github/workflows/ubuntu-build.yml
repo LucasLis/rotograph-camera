@@ -30,8 +30,8 @@ jobs:
           copy_artifact_path: dist
           image_additional_mb: 4096
           commands: |
-              sudo apt-get update && sudo apt-get upgrade -y
-              sudo apt install python3-opengl \
+              sudo apt update && sudo apt upgrade -y
+              sudo apt install -y python3-opengl \
                   libsdl2-mixer-2.0-0 \
                   libsdl2-image-2.0-0 \
                   libsdl2-2.0-0 \
