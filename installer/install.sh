@@ -1,9 +1,23 @@
 #!/usr/bin/bash
 
-echo "Note: If you are on debian (such as on a Raspberry Pi) you will need to install the following packages:"
-echo "sudo apt-get install python3-opengl"
-
-read -p "Press enter to continue"
+echo "Note: If you are on debian (such as on a Raspberry Pi) you will need to install some extra dependencies: "
+echo "python3-opengl libsdl2-mixer-2.0-0 libsdl2-image-2.0-0 libsdl2-2.0-0 libsdl2-ttf-2.0-0 python3-gi gstreamer1.0-tools gir1.2-gstreamer-1.0 gir1.2-gst-plugins-base-1.0 gstreamer1.0-plugins-good gstreamer1.0-plugins-ugly gstreamer1.0-plugins-bad gstreamer1.0-libav"
+read -p "Would you like to install these dependencies now? (y/n) " answer
+if [ "$answer" == "y" ]; then
+	sudo apt install python3-opengl \
+			libsdl2-mixer-2.0-0 \
+			libsdl2-image-2.0-0 \
+			libsdl2-2.0-0 \
+			libsdl2-ttf-2.0-0 \
+			python3-gi \
+			gstreamer1.0-tools \
+			gir1.2-gstreamer-1.0 \
+			gir1.2-gst-plugins-base-1.0 \
+			gstreamer1.0-plugins-good \
+			gstreamer1.0-plugins-ugly \
+			gstreamer1.0-plugins-bad \
+			gstreamer1.0-libav
+fi
 
 function remove {
 	rm -rf $HOME/.local/share/rotograph $HOME/.local/bin/rotograph $HOME/.local/share/applications/Rotograph.desktop $HOME/Desktop/Rotograph.desktop

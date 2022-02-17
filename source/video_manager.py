@@ -41,7 +41,6 @@ class VideoManager(pyglet.event.EventDispatcher):
 
         if self.camera is None:
             cameras = camera.list_cameras()
-            print(cameras)
             if len(cameras) == 0:
                 print("No cameras found.")
                 self.dispatch_event("on_camera_unavailable")
@@ -55,8 +54,8 @@ class VideoManager(pyglet.event.EventDispatcher):
         try:
             self.camera.start()
             self.camera_available = True
-        except SystemError:
-            print("Camera unavailable.")
+        except SystemError as e:
+            print("Camera unavailable:", e)
             self.dispatch_event("on_camera_unavailable")
             return
 
