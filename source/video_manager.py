@@ -5,6 +5,7 @@ from PIL import Image, ImageEnhance
 import pyglet
 
 from typing import Tuple, Optional, List
+from threading import Thread
 import os
 
 
@@ -108,8 +109,21 @@ class VideoManager(pyglet.event.EventDispatcher):
         # Crop the center of the image
         return image.crop((left, top, right, bottom))
 
-    def get_image(self) -> Image.Image:
-        self.surface = self.camera.get_image()
+    def get_image(self) -> Optional[Image.Image]:
+        def get_image():
+            self.camera_available = False
+            self.surface = self.camera.get_image()
+            self.camera_available = True
+
+        thread = Thread(target=get_image, daemon=True)
+        thread.start()
+        thread.join(1)
+
+        if not self.camera_available:
+            self.dispatch_event("on_camera_unavailable")
+            print("Frame timed out.")
+            return
+
         data = image.tostring(self.surface, self.FORMAT)
         pil_image = Image.frombytes("RGB", self.surface.get_size(), data)
         # Saturation
@@ -122,6 +136,9 @@ class VideoManager(pyglet.event.EventDispatcher):
     def frame(self, dt: float = None):
         if self.camera_available:
             pil_image = self.get_image()
+            if pil_image is None:
+                return
+
             data = pil_image.tobytes()
 
             self.image = pyglet.image.ImageData(
@@ -140,6 +157,9 @@ class VideoManager(pyglet.event.EventDispatcher):
     def save(self, output_path: str, datestring: Optional[str] = None):
         if self.fps == 0:
             pil_image = self.get_image()
+            if pil_image is None:
+                return
+
             path = os.path.join(output_path, "frame-" + datestring + ".jpg")
             self.crop_frame(pil_image).save(path)
             return
